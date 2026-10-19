@@ -2911,22 +2911,22 @@ static void frontParser_handleSeqCC()
          switch(frontParser_command.data2)
          {
             case 0:
-               trigger_dividerClockOut1 = PRE_1_PPQ;
+               trigger_dividerClockOut1 = PRE_1_PER_4_QN_OUT;
                break;
          
             default:
             case 1:
-               trigger_dividerClockOut1 = PRE_4_PPQ;
+               trigger_dividerClockOut1 = PRE_1_PER_2_QN_OUT;
                break;
          
             case 2:
-               trigger_dividerClockOut1 = PRE_8_PPQ;
+               trigger_dividerClockOut1 = PRE_1_PPQ_OUT;
                break;
             case 3:
-               trigger_dividerClockOut1 = PRE_16_PPQ;
+               trigger_dividerClockOut1 = PRE_2_PPQ_OUT;
                break;
             case 4:
-               trigger_dividerClockOut1 = PRE_32_PPQ;
+               trigger_dividerClockOut1 = PRE_4_PPQ_OUT;
                break;
          }
       
@@ -2936,22 +2936,22 @@ static void frontParser_handleSeqCC()
          switch(frontParser_command.data2)
          {
             case 0:
-               trigger_dividerClockOut2 = PRE_1_PPQ;
+               trigger_dividerClockOut2 = PRE_1_PER_4_QN_OUT;
                break;
          
             default:
             case 1:
-               trigger_dividerClockOut2 = PRE_4_PPQ;
+               trigger_dividerClockOut2 = PRE_1_PER_2_QN_OUT;
                break;
          
             case 2:
-               trigger_dividerClockOut2 = PRE_8_PPQ;
+               trigger_dividerClockOut2 = PRE_1_PPQ_OUT;
                break;
             case 3:
-               trigger_dividerClockOut2 = PRE_16_PPQ;
+               trigger_dividerClockOut2 = PRE_2_PPQ_OUT;
                break;
             case 4:
-               trigger_dividerClockOut2 = PRE_32_PPQ;
+               trigger_dividerClockOut2 = PRE_4_PPQ_OUT;
                break;
                break;
          }

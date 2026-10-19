@@ -79,6 +79,11 @@ enum
 enum Prescaler
 {
 	PRE_1_PPQ	= 32/1,
+	PRE_1_PER_4_QN_OUT	= 128,
+	PRE_1_PER_2_QN_OUT	= 64,
+	PRE_1_PPQ_OUT	= 32,
+	PRE_2_PPQ_OUT	= 16,
+	PRE_4_PPQ_OUT	= 8,
 	PRE_4_PPQ	= 32/4,
 	PRE_8_PPQ	= 32/8,
 	PRE_16_PPQ	= 32/16,

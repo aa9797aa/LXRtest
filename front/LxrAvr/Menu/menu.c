@@ -42,7 +42,7 @@
 // uppercase 3 letters in buf
 static void upr_three(char *buf);
 // given a menuid and a param value fill buf with the short menu item value. will not exceed 3 chars
-static void getMenuItemNameForValue(const uint8_t menuId, const uint8_t curParmVal, char *buf);
+static void getMenuItemNameForValue(const uint16_t paramNr, const uint8_t menuId, const uint8_t curParmVal, char *buf);
 static void menu_waitSampleUploadResult(uint8_t *statusFlags);
 static void menu_drawSampleUploadFlashDots(uint8_t phase);
 static void menu_showSampleUploadFlashProgress(uint8_t phase);
@@ -1624,7 +1624,7 @@ void menu_repaintGeneric()
 				//get the used menu (upper 4 bit)
 				const uint8_t menuId = (pgm_read_byte(&parameter_dtypes[parNr]) >> 4);
 				// get the value name
-				getMenuItemNameForValue(menuId, curParmVal, &editDisplayBuffer[1][13]);
+				getMenuItemNameForValue(parNr, menuId, curParmVal, &editDisplayBuffer[1][13]);
 			}
 				break; // switch(parameters[parNr].dtype&0x0F) case DTYPE_MENU
 
@@ -1746,7 +1746,7 @@ void menu_repaintGeneric()
 				{
 					//get the used menu (upper 4 bit)
 					const uint8_t menuId = pgm_read_byte(&parameter_dtypes[parNr]) >> 4;
-					getMenuItemNameForValue(menuId, curParmVal, valueAsText);
+					getMenuItemNameForValue(parNr, menuId, curParmVal, valueAsText);
 				}
 					break;
 
@@ -2618,9 +2618,15 @@ static uint8_t getMaxEntriesForMenu(uint8_t menuId)
 }
 
 // given a menu id, and a value returns the name from PROGMEM
-static void getMenuItemNameForValue(const uint8_t menuId, const uint8_t curParmVal, char *buf)
+static void getMenuItemNameForValue(const uint16_t paramNr, const uint8_t menuId, const uint8_t curParmVal, char *buf)
 {
 	const void *p=0;
+	if(paramNr == PAR_PRESCALER_CLOCK_OUT1 || paramNr == PAR_PRESCALER_CLOCK_OUT2)
+	{
+		memcpy_P(buf, triggerOutPpqNames[curParmVal + 1], 3);
+		return;
+	}
+
 	switch(menuId)
 	{
 	case MENU_TRANS:
