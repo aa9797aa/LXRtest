@@ -1018,7 +1018,8 @@ static void seq_nextStep()
    
 
 	//--------- Time to process the single tracks -------------------------
-   trigger_clockTick(seq_stepIndex[NUM_TRACKS]+1);
+   if(seq_getExtSync())
+      trigger_clockTick(SEQ_PRESCALER_MASK);
    
    for(i=0;i<NUM_TRACKS;i++)
    {
@@ -1361,6 +1362,9 @@ void seq_tick()
       seq_lastTick = systick_ticks;
       seq_calcDeltaT(seq_tempo);
       seq_deltaT = seq_deltaT - rest;
+
+      if(seq_running && !seq_getExtSync())
+         trigger_clockTick(1);
    
       if((seq_prescaleCounter%SEQ_PRESCALER_MASK) == 0)
       {

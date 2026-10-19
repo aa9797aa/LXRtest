@@ -1624,7 +1624,10 @@ void menu_repaintGeneric()
 				//get the used menu (upper 4 bit)
 				const uint8_t menuId = (pgm_read_byte(&parameter_dtypes[parNr]) >> 4);
 				// get the value name
-				getMenuItemNameForValue(parNr, menuId, curParmVal, &editDisplayBuffer[1][13]);
+				char *valueText = &editDisplayBuffer[1][13];
+				if(parNr == PAR_PRESCALER_CLOCK_OUT1 || parNr == PAR_PRESCALER_CLOCK_OUT2)
+					valueText = &editDisplayBuffer[1][12];
+				getMenuItemNameForValue(parNr, menuId, curParmVal, valueText);
 			}
 				break; // switch(parameters[parNr].dtype&0x0F) case DTYPE_MENU
 
@@ -1693,11 +1696,12 @@ void menu_repaintGeneric()
 		// bottom values
 
 		// some place to store the parameter value as text
-		char valueAsText[3];
+		char valueAsText[4];
 
 		for(uint8_t i=0;i<4;i++) { // for each of the four columns of values
 			const uint16_t parNr = pgm_read_word(&ap->bot1 + i +is2ndPage);
 			curParmVal = parameter_values[parNr];
+			memset(valueAsText, ' ', sizeof(valueAsText));
 
 			//convert the parameter uint8_t value to a 3 place char
 			if(parNr==PAR_NONE) {
@@ -1772,7 +1776,7 @@ void menu_repaintGeneric()
 			} // if(parNr==PAR_NONE)
 
 			//write the text to the edit buffer
-			memcpy(&editDisplayBuffer[1][4*i],valueAsText,3);
+			memcpy(&editDisplayBuffer[1][4*i],valueAsText,4);
 
 		}	// for 1 to 4 .. each menu item
 	} // if editmode not active
@@ -2623,7 +2627,7 @@ static void getMenuItemNameForValue(const uint16_t paramNr, const uint8_t menuId
 	const void *p=0;
 	if(paramNr == PAR_PRESCALER_CLOCK_OUT1 || paramNr == PAR_PRESCALER_CLOCK_OUT2)
 	{
-		memcpy_P(buf, triggerOutPpqNames[curParmVal + 1], 3);
+		memcpy_P(buf, triggerOutPpqNames[curParmVal + 1], 4);
 		return;
 	}
 
@@ -2839,6 +2843,8 @@ static uint8_t menu_getDtypeMenuEntryCount(uint16_t paramNr)
 
    if(paramNr == PAR_MIDI_FILT_RX)
       return MIDI_FILTER_RX_ENTRIES;
+   if(paramNr == PAR_PRESCALER_CLOCK_OUT1 || paramNr == PAR_PRESCALER_CLOCK_OUT2)
+      return triggerOutPpqNames[0][0];
 
    return getMaxEntriesForMenu(menuId);
 }
@@ -4256,6 +4262,8 @@ static uint8_t getDtypeValue(uint8_t value, uint16_t paramNr)
 		const uint8_t menuId = pgm_read_byte(&parameter_dtypes[paramNr]) >> 4;
 		//get the number of entries
 		uint8_t numEntries=getMaxEntriesForMenu(menuId);
+		if(paramNr == PAR_PRESCALER_CLOCK_OUT1 || paramNr == PAR_PRESCALER_CLOCK_OUT2)
+			numEntries = triggerOutPpqNames[0][0];
 		return (uint8_t)(frac * (numEntries-1));
 	}
 

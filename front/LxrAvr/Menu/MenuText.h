@@ -72,14 +72,26 @@ const char ppqNames[][4] PROGMEM  =
 
 };
 //-----------------------------------------------------------------
-const char triggerOutPpqNames[][4] PROGMEM =
+const char triggerOutPpqNames[][5] PROGMEM =
 {
-	{5},		//number of entries
-	{"1/4"},
-	{"1/2"},
-	{"1  "},
-	{"2  "},
-	{"4  "},
+	{17},		//number of entries
+	{"1/4 "},
+	{"1/2 "},
+	{"1   "},
+	{"2   "},
+	{"4   "},
+	{"1/8 "},
+	{"1/16"},
+	{"1/4d"},
+	{"1/2d"},
+	{"1d  "},
+	{"2d  "},
+	{"4d  "},
+	{"1/4t"},
+	{"1/2t"},
+	{"1t  "},
+	{"2t  "},
+	{"4t  "},
 };
 //-----------------------------------------------------------------
 // -bc- I don't think this menu gets used any more... possible to retcon for something else?

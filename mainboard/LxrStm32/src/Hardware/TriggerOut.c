@@ -42,12 +42,28 @@
 #include "config.h"
 #include "../DSPAudio/medianFilter.h"
 
-uint8_t trigger_dividerClockOut1 = PRE_4_PPQ;
-uint8_t trigger_dividerClockOut2 = PRE_4_PPQ;
 uint8_t trigger_prescalerClockInput = PRE_4_PPQ;
 
-uint8_t trigger_nextPulseOut1 = 0xff;
-uint8_t trigger_nextPulseOut2 = 0xff;
+typedef struct
+{
+	uint16_t intervalTicks;
+	uint16_t elapsedTicks;
+	uint8_t pulseTicksRemaining;
+	uint8_t started;
+	uint8_t pin;
+} TriggerClockOut;
+
+/* Front-panel order: straight rates, dotted rates, then triplet rates.
+   Three timing quanta correspond to one sequencer substep. */
+static const uint16_t trigger_clockOutIntervals[] =
+{
+	384, 192, 96, 48, 24, 768, 1536,
+	576, 288, 144, 72, 36,
+	256, 128, 64, 32, 16
+};
+
+static TriggerClockOut trigger_clockOut1 = {24, 0, 0, 0, CLOCK_1};
+static TriggerClockOut trigger_clockOut2 = {24, 0, 0, 0, CLOCK_2};
 
 
 uint32_t trigger_pulseTimes[NUM_PINS];
@@ -197,6 +213,70 @@ void trigger_pulsePin(uint8_t index)
 	trigger_setPin(index,1);
 }
 
+static void trigger_setClockOutRate(TriggerClockOut *clockOut, uint8_t rate)
+{
+	if(rate >= sizeof(trigger_clockOutIntervals) / sizeof(trigger_clockOutIntervals[0]))
+		rate = 1;
+
+	clockOut->intervalTicks = trigger_clockOutIntervals[rate];
+	if(clockOut->started && clockOut->elapsedTicks >= clockOut->intervalTicks)
+		clockOut->elapsedTicks %= clockOut->intervalTicks;
+}
+
+static void trigger_resetClockOut(TriggerClockOut *clockOut)
+{
+	clockOut->elapsedTicks = 0;
+	clockOut->pulseTicksRemaining = 0;
+	clockOut->started = 0;
+	trigger_setPin(clockOut->pin, 0);
+}
+
+void trigger_setClockOut1Rate(uint8_t rate)
+{
+	trigger_setClockOutRate(&trigger_clockOut1, rate);
+}
+
+void trigger_setClockOut2Rate(uint8_t rate)
+{
+	trigger_setClockOutRate(&trigger_clockOut2, rate);
+}
+
+static void trigger_advanceClockOut(TriggerClockOut *clockOut, uint8_t ticks)
+{
+	uint8_t pulse = 0;
+
+	if(clockOut->pulseTicksRemaining)
+	{
+		clockOut->pulseTicksRemaining =
+			clockOut->pulseTicksRemaining > ticks
+				? (uint8_t)(clockOut->pulseTicksRemaining - ticks)
+				: 0;
+		if(!clockOut->pulseTicksRemaining)
+			trigger_setPin(clockOut->pin, 0);
+	}
+
+	if(!clockOut->started)
+	{
+		clockOut->started = 1;
+		pulse = 1;
+	}
+	else
+	{
+		clockOut->elapsedTicks += ticks;
+		if(clockOut->elapsedTicks >= clockOut->intervalTicks)
+		{
+			clockOut->elapsedTicks -= clockOut->intervalTicks;
+			pulse = 1;
+		}
+	}
+
+	if(pulse)
+	{
+		trigger_setPin(clockOut->pin, 1);
+		clockOut->pulseTicksRemaining = 3;
+	}
+}
+
 //--------------------------------------------------
 void trigger_init()
 {
@@ -323,29 +403,10 @@ void trigger_triggerVoice(uint8_t voice, triggerMode mode)
 
 }
 //--------------------------------------------------
-void trigger_clockTick(uint8_t pos)
+void trigger_clockTick(uint8_t ticks)
 {
-	if(pos==1)
-	{
-		trigger_nextPulseOut1 = 0;
-		trigger_nextPulseOut2 = 0;
-		//trigger_setPin(CLOCK_1,0);
-		//trigger_setPin(CLOCK_2,0);
-	}
-
-	if(pos >= trigger_nextPulseOut1)
-	{
-		//trigger_pulsePin(CLOCK_1);
-		trigger_setPin(CLOCK_1,1);
-		trigger_nextPulseOut1 += trigger_dividerClockOut1;
-	} else trigger_setPin(CLOCK_1,0);
-
-	if(pos >= trigger_nextPulseOut2)
-	{
-		trigger_setPin(CLOCK_2,1);
-		trigger_nextPulseOut2 += trigger_dividerClockOut2;
-	}else trigger_setPin(CLOCK_2,0);
-
+	trigger_advanceClockOut(&trigger_clockOut1, ticks);
+	trigger_advanceClockOut(&trigger_clockOut2, ticks);
 }
 //--------------------------------------------------
 void trigger_reset(uint8_t value)
@@ -353,8 +414,8 @@ void trigger_reset(uint8_t value)
 	trigger_setPin(TRIGGER_RESET,1-value);
 
 	if(value) {
-		trigger_nextPulseOut1 = 0;
-		trigger_nextPulseOut2 = 0;
+		trigger_resetClockOut(&trigger_clockOut1);
+		trigger_resetClockOut(&trigger_clockOut2);
 	}
 }
 //--------------------------------------------------
@@ -393,4 +454,3 @@ void trigger_allOff()
 {
 	trigger_setPin(TRIGGER_ALL, 0);
 }
-
