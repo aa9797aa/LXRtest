@@ -1,5 +1,5 @@
 # Sonic Potions LXR Drumsynth Firmware
-## Catalyst Edition Version 1.03
+
 
 
 I MODIFIED THE FIRMWARE USING COPILOT TO DIVIDE THE CLOCK OUTS DIFFERENTLY. 
@@ -15,7 +15,7 @@ DISCLAIMER I HAVE NO IDEA WHAT I AM DOING.
 
 ------------
 
-
+## Catalyst Edition Version 1.03 ALT 
 
 
 
