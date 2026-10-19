@@ -1,6 +1,24 @@
 # Sonic Potions LXR Drumsynth Firmware
 ## Catalyst Edition Version 1.03
 
+
+I MODIFIED THE FIRMWARE USING COPILOT TO DIVIDE THE CLOCK OUTS DIFFERENTLY. 
+
+NOW IT DOES: one pulse per 4 quarters
+one pulse per 2 quarters
+one pulse per quarter
+2 pulses per quarter
+4 pulses pe quarter
+
+DISCLAIMER I HAVE NO IDEA WHAT I AM DOING.
+
+
+------------
+
+
+
+
+
 The LXR is a digital drum synthesizer based on a 32-bit Cortex-M4 (STM32F407) audio/control processor and an ATmega644 8-bit front-panel CPU. Originally developed by Julian Schmidt / Sonic Potions.
 
 Catalyst edition expands a number of the features of the LXR while keeping the core sound of the instrument the same.  
